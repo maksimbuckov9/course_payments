@@ -1,12 +1,5 @@
 {% extends 'payments/base.html' %}
-
-{% block title %}Панель управления{% endblock %}
-
 {% block content %}
-<h2>Панель управления</h2>
-<ul>
-    <li>Всего слушателей: {{ students_count }}</li>
-    <li>Всего курсов: {{ courses_count }}</li>
-    <li>Оплаченных платежей: {{ payments_count }}</li>
-</ul>
+<h1>Добро пожаловать на панель управления!</h1>
+<a href="{% url 'course_list' %}">Курсы</a>
 {% endblock %}
