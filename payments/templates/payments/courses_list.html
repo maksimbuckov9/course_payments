@@ -1,0 +1,16 @@
+{% extends 'payments/base.html' %}
+{% block content %}
+<h2>Курсы</h2>
+<a href="{% url 'course_create' %}">Добавить курс</a>
+<ul>
+  {% for course in courses %}
+    <li>
+      {{ course.name }} — {{ course.teacher }} — {{ course.price }} руб.
+      [<a href="{% url 'course_edit' course.pk %}">Редактировать</a>]
+      [<a href="{% url 'course_delete' course.pk %}">Удалить</a>]
+    </li>
+  {% empty %}
+    <li>Курсы не найдены.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
