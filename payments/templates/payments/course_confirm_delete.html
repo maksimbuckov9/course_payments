@@ -1,0 +1,10 @@
+{% extends 'payments/base.html' %}
+{% block content %}
+<h2>Удалить курс</h2>
+<p>Вы уверены, что хотите удалить курс "{{ course.name }}"?</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Удалить</button>
+  <a href="{% url 'course_list' %}">Отмена</a>
+</form>
+{% endblock %}
