@@ -1,20 +1,16 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Система учета оплаты{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta charset="UTF-8" />
+    <title>{% block title %}Course Payments{% endblock %}</title>
 </head>
 <body>
-    <header>
-        <h1>Учёт оплаты за подготовительные курсы</h1>
-        <nav>
-            <a href="{% url 'dashboard' %}">Главная</a> |
-            <a href="{% url 'students_list' %}">Слушатели</a>
-        </nav>
-    </header>
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+    {% if user.is_authenticated %}
+        Привет, {{ user.username }} | <a href="{% url 'logout' %}">Выйти</a>
+    {% else %}
+        <a href="{% url 'login' %}">Войти</a>
+    {% endif %}
+    <hr />
+    {% block content %}{% endblock %}
 </body>
 </html>
