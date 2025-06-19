@@ -4,7 +4,14 @@
 <h2>Вход</h2>
 <form method="post">
   {% csrf_token %}
-  {{ form.as_p }}
+  <div>
+    <label>Имя пользователя:</label>
+    <input type="text" name="username" required>
+  </div>
+  <div>
+    <label>Пароль:</label>
+    <input type="password" name="password" required>
+  </div>
   <button type="submit">Войти</button>
 </form>
 {% endblock %}
