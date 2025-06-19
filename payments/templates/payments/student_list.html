@@ -1,0 +1,30 @@
+{% extends 'payments/base.html' %}
+{% block content %}
+<h2>Слушатели</h2>
+<a href="{% url 'student_create' %}" class="btn btn-success">Добавить слушателя</a>
+<table class="table table-bordered mt-3">
+  <thead>
+    <tr>
+      <th>ФИО</th>
+      <th>Паспорт</th>
+      <th>Телефон</th>
+      <th>Действия</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for student in students %}
+    <tr>
+      <td>{{ student.user.get_full_name }}</td>
+      <td>{{ student.passport }}</td>
+      <td>{{ student.phone }}</td>
+      <td>
+        <a href="{% url 'student_edit' student.pk %}" class="btn btn-sm btn-primary">Редактировать</a>
+        <a href="{% url 'student_delete' student.pk %}" class="btn btn-sm btn-danger">Удалить</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">Слушателей пока нет.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
