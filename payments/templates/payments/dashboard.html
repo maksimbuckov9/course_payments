@@ -1,5 +1,52 @@
 {% extends 'payments/base.html' %}
+
 {% block content %}
-<h1>Добро пожаловать на панель управления!</h1>
-<a href="{% url 'course_list' %}">Курсы</a>
+  <h1>Добро пожаловать, {{ user.get_full_name }}!</h1>
+
+  <hr>
+  <h2>Курсы</h2>
+  <a href="{% url 'course_list' %}" class="btn btn-primary mb-2">Управление курсами</a>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Название</th>
+        <th>Преподаватель</th>
+        <th>Цена</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for course in courses %}
+      <tr>
+        <td>{{ course.name }}</td>
+        <td>{{ course.teacher }}</td>
+        <td>{{ course.price }} ₽</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="3">Нет курсов</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Слушатели</h2>
+  <a href="{% url 'student_list' %}" class="btn btn-primary mb-2">Управление слушателями</a>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ФИО</th>
+        <th>Паспорт</th>
+        <th>Телефон</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for student in students %}
+      <tr>
+        <td>{{ student.user.get_full_name }}</td>
+        <td>{{ student.passport }}</td>
+        <td>{{ student.phone }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="3">Нет слушателей</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}
