@@ -2,10 +2,17 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Course
 from .forms import CourseForm
+from .models import Student
+from .forms import StudentForm
 
 @login_required
 def dashboard(request):
-    return render(request, 'payments/dashboard.html')
+    courses = Course.objects.all()
+    students = Student.objects.all()
+    return render(request, 'payments/dashboard.html', {
+        'courses': courses,
+        'students': students
+    })
 
 @login_required
 def course_list(request):
@@ -42,3 +49,36 @@ def course_delete(request, pk):
         course.delete()
         return redirect('course_list')
     return render(request, 'payments/course_confirm_delete.html', {'course': course})
+    
+@login_required
+def student_list(request):
+    students = Student.objects.all()
+    return render(request, 'payments/student_list.html', {'students': students})
+
+@login_required
+def student_create(request):
+    if request.method == 'POST':
+        form = StudentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('student_list')
+    else:
+        form = StudentForm()
+    return render(request, 'payments/student_form.html', {'form': form, 'title': 'Добавить студента'})
+
+@login_required
+def student_edit(request, pk):
+    student = get_object_or_404(Student, pk=pk)
+    form = StudentForm(request.POST or None, instance=student)
+    if form.is_valid():
+        form.save()
+        return redirect('student_list')
+    return render(request, 'payments/student_form.html', {'form': form, 'title': 'Редактировать студента'})
+
+@login_required
+def student_delete(request, pk):
+    student = get_object_or_404(Student, pk=pk)
+    if request.method == 'POST':
+        student.delete()
+        return redirect('student_list')
+    return render(request, 'payments/student_confirm_delete.html', {'student': student})
