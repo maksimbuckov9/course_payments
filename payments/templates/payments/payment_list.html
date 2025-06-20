@@ -3,6 +3,24 @@
 <h2>Оплаты</h2>
 <a href="{% url 'payment_create' %}" class="btn btn-success mb-2">Добавить оплату</a>
 <a href="{% url 'export_payments_excel' %}" class="btn btn-success mb-2">Выгрузить оплаты в Excel</a>
+<a href="{% url 'payments_stats' %}" class="btn btn-success mb-2" >Просмотр статистики оплат</a>
+<form method="get" class="mb-3 d-flex gap-2">
+  <input type="text" name="q" placeholder="Поиск по имени студента" value="{{ query }}" class="form-control" />
+  <select name="course" class="form-select">
+    <option value="">Все курсы</option>
+    {% for course in courses %}
+      <option value="{{ course.id }}" {% if course.id|stringformat:"s" == selected_course %}selected{% endif %}>
+        {{ course.name }}
+      </option>
+    {% endfor %}
+  </select>
+  <select name="status" class="form-select">
+    <option value="">Все статусы</option>
+    <option value="paid" {% if selected_status == 'paid' %}selected{% endif %}>Оплачено</option>
+    <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Ожидается</option>
+  </select>
+  <button type="submit" class="btn btn-primary">Фильтровать</button>
+</form>
 <table class="table table-bordered">
   <thead>
     <tr>

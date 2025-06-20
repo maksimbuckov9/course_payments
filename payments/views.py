@@ -4,51 +4,97 @@ from .models import Course
 from .forms import CourseForm
 from .models import Student
 from .forms import StudentForm
-from .models import Payment
 from .forms import PaymentForm
 import os
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
 from datetime import datetime
 from docx import Document
 from .models import Payment  # предположим, что Payment у вас импортирован здесь
 import openpyxl
 from django.http import HttpResponse
-from .models import Payment
+from django.db.models import Sum, Count
+from django.db.models.functions import TruncMonth
+from django.db.models import Q
 
 @login_required
-def export_payments_excel(request):
-    payments = Payment.objects.select_related('student__user', 'course').all()
+def payment_list(request):
+    payments = Payment.objects.select_related('student__user', 'course')
 
-    # Создаём книгу Excel и лист
+    query = request.GET.get('q', '')
+    course_id = request.GET.get('course', '')
+    status = request.GET.get('status', '')
+
+    if query:
+        payments = payments.filter(
+            Q(student__user__first_name__icontains=query) |
+            Q(student__user__last_name__icontains=query)
+        )
+    if course_id:
+        payments = payments.filter(course_id=course_id)
+    if status:
+        payments = payments.filter(status=status)
+
+    courses = Course.objects.all()
+
+    context = {
+        'payments': payments,
+        'courses': courses,
+        'query': query,
+        'selected_course': course_id,
+        'selected_status': status,
+    }
+    return render(request, 'payments/payment_list.html', context)
+
+@login_required
+def payments_stats(request):
+    # Сумма оплат по курсам
+    course_payments = (
+        Payment.objects.values('course__name')
+        .annotate(total=Sum('amount'))
+    )
+    course_labels = [item['course__name'] for item in course_payments]
+    course_values = [item['total'] for item in course_payments]
+
+    # Количество оплат по месяцам (с TruncMonth)
+    monthly = (
+        Payment.objects
+        .annotate(month=TruncMonth('date'))
+        .values('month')
+        .annotate(count=Count('id'))
+        .order_by('month')
+    )
+    month_labels = [item['month'].strftime('%Y-%m') for item in monthly]
+    month_values = [item['count'] for item in monthly]
+
+    context = {
+        'course_labels': course_labels,
+        'course_values': course_values,
+        'month_labels': month_labels,
+        'month_values': month_values,
+    }
+    return render(request, 'payments/payments_stats.html', context)
+def export_payments_excel(request):
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = "Payments Report"
+    ws.title = "Оплаты"
 
-    # Заголовки столбцов
-    headers = ['ID оплаты', 'Студент', 'Курс', 'Дата оплаты', 'Сумма', 'Статус']
-    ws.append(headers)
+    # Заголовки
+    ws.append(['Студент', 'Курс', 'Сумма', 'Дата'])
 
-    # Заполняем строки
-    for p in payments:
-        row = [
-            p.id,
-            p.student.user.get_full_name(),
-            p.course.name,
-            p.date.strftime('%d.%m.%Y') if p.date else '',
-            p.amount,
-            p.status if hasattr(p, 'status') else '',
-        ]
-        ws.append(row)
+    # Данные
+    for payment in Payment.objects.select_related('student__user', 'course'):
+        ws.append([
+            payment.student.user.get_full_name(),
+            payment.course.name,
+            payment.amount,
+            payment.date.strftime('%d.%m.%Y')
+        ])
 
-    # Подготавливаем ответ
+    # Ответ
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = 'attachment; filename=payments_report.xlsx'
-
+    response['Content-Disposition'] = 'attachment; filename=payments.xlsx'
     wb.save(response)
     return response
 
@@ -159,10 +205,7 @@ def student_delete(request, pk):
     return render(request, 'payments/student_confirm_delete.html', {'student': student})
     
 
-@login_required
-def payment_list(request):
-    payments = Payment.objects.all()
-    return render(request, 'payments/payment_list.html', {'payments': payments})
+
 
 @login_required
 def payment_create(request):
