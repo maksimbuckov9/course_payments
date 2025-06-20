@@ -4,6 +4,9 @@ from .models import Course
 from .forms import CourseForm
 from .models import Student
 from .forms import StudentForm
+from .models import Payment
+from .forms import PaymentForm
+
 
 @login_required
 def dashboard(request):
@@ -82,3 +85,34 @@ def student_delete(request, pk):
         student.delete()
         return redirect('student_list')
     return render(request, 'payments/student_confirm_delete.html', {'student': student})
+    
+
+@login_required
+def payment_list(request):
+    payments = Payment.objects.all()
+    return render(request, 'payments/payment_list.html', {'payments': payments})
+
+@login_required
+def payment_create(request):
+    form = PaymentForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('payment_list')
+    return render(request, 'payments/payment_form.html', {'form': form, 'title': 'Добавить оплату'})
+
+@login_required
+def payment_edit(request, pk):
+    payment = get_object_or_404(Payment, pk=pk)
+    form = PaymentForm(request.POST or None, instance=payment)
+    if form.is_valid():
+        form.save()
+        return redirect('payment_list')
+    return render(request, 'payments/payment_form.html', {'form': form, 'title': 'Редактировать оплату'})
+
+@login_required
+def payment_delete(request, pk):
+    payment = get_object_or_404(Payment, pk=pk)
+    if request.method == 'POST':
+        payment.delete()
+        return redirect('payment_list')
+    return render(request, 'payments/payment_confirm_delete.html', {'payment': payment})
