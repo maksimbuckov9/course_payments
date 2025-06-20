@@ -9,53 +9,45 @@
 <h2>📅 Количество оплат по месяцам</h2>
 <canvas id="chartMonths" width="600" height="400"></canvas>
 
-<!-- Подключение Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Данные из Django (вставлены как JSON)
-    const courseLabels = {{ course_labels|safe }};
-    const courseValues = {{ course_values|safe }};
-    const monthLabels = {{ month_labels|safe }};
-    const monthValues = {{ month_values|safe }};
+  const courseLabels = {{ course_labels|safe }};
+  const courseValues = {{ course_values|safe }};
+  const monthLabels = {{ month_labels|safe }};
+  const monthValues = {{ month_values|safe }};
 
-    // График: сумма по курсам
-    new Chart(document.getElementById('chartCourses'), {
-        type: 'bar',
-        data: {
-            labels: courseLabels,
-            datasets: [{
-                label: 'Сумма оплат (₽)',
-                data: courseValues,
-                backgroundColor: '#4CAF50'
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
-    });
+  new Chart(document.getElementById('chartCourses'), {
+    type: 'bar',
+    data: {
+      labels: courseLabels,
+      datasets: [{
+        label: 'Сумма оплат (₽)',
+        data: courseValues,
+        backgroundColor: '#4CAF50'
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: { y: { beginAtZero: true } }
+    }
+  });
 
-    // График: оплаты по месяцам
-    new Chart(document.getElementById('chartMonths'), {
-        type: 'line',
-        data: {
-            labels: monthLabels,
-            datasets: [{
-                label: 'Количество оплат',
-                data: monthValues,
-                fill: false,
-                borderColor: '#2196F3',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
-    });
+  new Chart(document.getElementById('chartMonths'), {
+    type: 'line',
+    data: {
+      labels: monthLabels,
+      datasets: [{
+        label: 'Количество оплат',
+        data: monthValues,
+        fill: false,
+        borderColor: '#2196F3',
+        tension: 0.1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: { y: { beginAtZero: true } }
+    }
+  });
 </script>
 {% endblock %}

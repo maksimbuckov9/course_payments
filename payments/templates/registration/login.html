@@ -2,16 +2,16 @@
 
 {% block content %}
 <h2>Вход</h2>
-<form method="post">
+<form method="post" class="mb-3">
   {% csrf_token %}
-  <div>
-    <label>Имя пользователя:</label>
-    <input type="text" name="username" required>
+  <div class="mb-3">
+    <label for="id_username" class="form-label">Имя пользователя:</label>
+    <input type="text" id="id_username" name="username" class="form-control" required>
   </div>
-  <div>
-    <label>Пароль:</label>
-    <input type="password" name="password" required>
+  <div class="mb-3">
+    <label for="id_password" class="form-label">Пароль:</label>
+    <input type="password" id="id_password" name="password" class="form-control" required>
   </div>
-  <button type="submit">Войти</button>
+  <button type="submit" class="btn btn-primary">Войти</button>
 </form>
 {% endblock %}

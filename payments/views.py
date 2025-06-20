@@ -15,7 +15,7 @@ from django.http import HttpResponse
 from django.db.models import Sum, Count
 from django.db.models.functions import TruncMonth
 from django.db.models import Q
-
+import json
 @login_required
 def payment_list(request):
     payments = Payment.objects.select_related('student__user', 'course')
@@ -47,15 +47,13 @@ def payment_list(request):
 
 @login_required
 def payments_stats(request):
-    # Сумма оплат по курсам
     course_payments = (
         Payment.objects.values('course__name')
         .annotate(total=Sum('amount'))
     )
     course_labels = [item['course__name'] for item in course_payments]
-    course_values = [item['total'] for item in course_payments]
+    course_values = [float(item['total']) for item in course_payments]
 
-    # Количество оплат по месяцам (с TruncMonth)
     monthly = (
         Payment.objects
         .annotate(month=TruncMonth('date'))
@@ -67,12 +65,14 @@ def payments_stats(request):
     month_values = [item['count'] for item in monthly]
 
     context = {
-        'course_labels': course_labels,
-        'course_values': course_values,
-        'month_labels': month_labels,
-        'month_values': month_values,
+        'course_labels': json.dumps(course_labels),
+        'course_values': json.dumps(course_values),
+        'month_labels': json.dumps(month_labels),
+        'month_values': json.dumps(month_values),
     }
     return render(request, 'payments/payments_stats.html', context)
+
+
 def export_payments_excel(request):
     wb = openpyxl.Workbook()
     ws = wb.active

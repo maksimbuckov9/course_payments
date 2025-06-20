@@ -19,5 +19,4 @@ urlpatterns = [
     path('export_payments_excel/', views.export_payments_excel, name='export_payments_excel'),
     path('payments_stats/', views.payments_stats, name='payments_stats'),
 
-
 ]

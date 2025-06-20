@@ -1,7 +1,7 @@
 {% extends 'payments/base.html' %}
 {% block content %}
 <h2>Слушатели</h2>
-<a href="{% url 'student_create' %}" class="btn btn-success">Добавить слушателя</a>
+<a href="{% url 'student_create' %}" class="btn btn-success" style="margin-bottom: 15px;">Добавить слушателя</a>
 <table class="table table-bordered mt-3">
   <thead>
     <tr>
@@ -19,11 +19,12 @@
       <td>{{ student.phone }}</td>
       <td>
         <a href="{% url 'student_edit' student.pk %}" class="btn btn-sm btn-primary">Редактировать</a>
-        <a href="{% url 'student_delete' student.pk %}" class="btn btn-sm btn-danger">Удалить</a>
+        <a href="{% url 'student_delete' student.pk %}" class="btn btn-sm btn-danger" 
+           onclick="return confirm('Вы уверены, что хотите удалить этого слушателя?');">Удалить</a>
       </td>
     </tr>
     {% empty %}
-    <tr><td colspan="4">Слушателей пока нет.</td></tr>
+    <tr><td colspan="4" style="text-align: center; padding: 15px;">Слушателей пока нет.</td></tr>
     {% endfor %}
   </tbody>
 </table>

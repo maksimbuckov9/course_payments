@@ -1,10 +1,10 @@
 {% extends 'payments/base.html' %}
 {% block content %}
 <h2>Удалить студента</h2>
-<p>Вы уверены, что хотите удалить {{ student.user.get_full_name }}?</p>
+<p>Вы уверены, что хотите удалить <strong>{{ student.user.get_full_name }}</strong>?</p>
 <form method="post">
   {% csrf_token %}
-  <button type="submit">Удалить</button>
-  <a href="{% url 'student_list' %}">Отмена</a>
+  <button type="submit" class="btn btn-danger">Удалить</button>
+  <a href="{% url 'student_list' %}" class="btn btn-secondary">Отмена</a>
 </form>
 {% endblock %}
