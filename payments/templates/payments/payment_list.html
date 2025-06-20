@@ -2,6 +2,7 @@
 {% block content %}
 <h2>Оплаты</h2>
 <a href="{% url 'payment_create' %}" class="btn btn-success mb-2">Добавить оплату</a>
+<a href="{% url 'export_payments_excel' %}" class="btn btn-success mb-2">Выгрузить оплаты в Excel</a>
 <table class="table table-bordered">
   <thead>
     <tr>
@@ -24,8 +25,11 @@
       <td>
         <a href="{% url 'payment_edit' payment.pk %}" class="btn btn-sm btn-primary">Изменить</a>
         <a href="{% url 'payment_delete' payment.pk %}" class="btn btn-sm btn-danger">Удалить</a>
+		<a href="{% url 'generate_contract' payment.pk %}" class="btn btn-sm btn-success">Договор</a>
       </td>
     </tr>
+	
+
     {% empty %}
     <tr><td colspan="6">Оплат нет</td></tr>
     {% endfor %}

@@ -15,5 +15,8 @@ urlpatterns = [
     path('payments/add/', views.payment_create, name='payment_create'),
     path('payments/<int:pk>/edit/', views.payment_edit, name='payment_edit'),
     path('payments/<int:pk>/delete/', views.payment_delete, name='payment_delete'),
+    path('payments/<int:payment_id>/contract/', views.generate_contract, name='generate_contract'),
+    path('export_payments_excel/', views.export_payments_excel, name='export_payments_excel'),
+
 
 ]

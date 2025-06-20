@@ -6,6 +6,78 @@ from .models import Student
 from .forms import StudentForm
 from .models import Payment
 from .forms import PaymentForm
+import os
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from datetime import datetime
+from docx import Document
+from .models import Payment  # предположим, что Payment у вас импортирован здесь
+import openpyxl
+from django.http import HttpResponse
+from .models import Payment
+
+@login_required
+def export_payments_excel(request):
+    payments = Payment.objects.select_related('student__user', 'course').all()
+
+    # Создаём книгу Excel и лист
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Payments Report"
+
+    # Заголовки столбцов
+    headers = ['ID оплаты', 'Студент', 'Курс', 'Дата оплаты', 'Сумма', 'Статус']
+    ws.append(headers)
+
+    # Заполняем строки
+    for p in payments:
+        row = [
+            p.id,
+            p.student.user.get_full_name(),
+            p.course.name,
+            p.date.strftime('%d.%m.%Y') if p.date else '',
+            p.amount,
+            p.status if hasattr(p, 'status') else '',
+        ]
+        ws.append(row)
+
+    # Подготавливаем ответ
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename=payments_report.xlsx'
+
+    wb.save(response)
+    return response
+
+@login_required 
+def generate_contract(request, payment_id):
+    payment = get_object_or_404(Payment, pk=payment_id)
+
+    # Абсолютный путь к шаблону
+    template_path = os.path.join(settings.BASE_DIR, 'static', 'contracts', 'contract_template.docx')
+    
+    doc = Document(template_path)
+
+    # Замена плейсхолдеров
+    for p in doc.paragraphs:
+        p.text = p.text.replace('{{ contract_number }}', str(payment.id))
+        p.text = p.text.replace('{{ date }}', datetime.now().strftime('%d.%m.%Y'))
+        p.text = p.text.replace('{{ student_name }}', payment.student.user.get_full_name())
+        p.text = p.text.replace('{{ course_name }}', payment.course.name)
+        p.text = p.text.replace('{{ start_date }}', payment.course.start_date.strftime('%d.%m.%Y'))
+        p.text = p.text.replace('{{ end_date }}', payment.course.end_date.strftime('%d.%m.%Y'))
+        p.text = p.text.replace('{{ price }}', str(payment.amount))
+
+    # Ответ как файл
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    filename = f"contract_{payment.student.user.username}_{payment.course.name}.docx"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    doc.save(response)
+    return response
+
 
 
 @login_required
