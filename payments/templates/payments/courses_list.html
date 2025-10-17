@@ -1,14 +1,21 @@
 {% extends 'payments/base.html' %}
+
 {% block content %}
 <h2>Курсы</h2>
+
+{% if user.role != 'student' %}
 <a href="{% url 'course_create' %}" class="btn btn-success mb-3">Добавить курс</a>
+{% endif %}
+
 <table class="table table-bordered">
   <thead>
     <tr>
       <th>Название</th>
       <th>Преподаватель</th>
       <th>Цена, руб.</th>
+      {% if user.role != 'student' %}
       <th>Действия</th>
+      {% endif %}
     </tr>
   </thead>
   <tbody>
@@ -17,14 +24,16 @@
       <td>{{ course.name }}</td>
       <td>{{ course.teacher }}</td>
       <td>{{ course.price }}</td>
+      {% if user.role != 'student' %}
       <td>
         <a href="{% url 'course_edit' course.pk %}" class="btn btn-sm btn-primary">Редактировать</a>
         <a href="{% url 'course_delete' course.pk %}" class="btn btn-sm btn-danger">Удалить</a>
       </td>
+      {% endif %}
     </tr>
     {% empty %}
     <tr>
-      <td colspan="4">Курсы не найдены.</td>
+      <td colspan="{% if user.role != 'student' %}4{% else %}3{% endif %}">Курсы не найдены.</td>
     </tr>
     {% endfor %}
   </tbody>

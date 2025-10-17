@@ -1,0 +1,31 @@
+{% extends "payments/base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Список пользователей</h2>
+    <a href="{% url 'user_create' %}" class="btn btn-success mb-3">➕ Добавить пользователя</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Имя пользователя</th>
+                <th>Email</th>
+                <th>Роль</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.role }}</td>
+                <td>
+                    <a href="{% url 'user_edit' user.id %}" class="btn btn-primary btn-sm">✏ Редактировать</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

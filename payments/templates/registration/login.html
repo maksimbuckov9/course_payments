@@ -1,17 +1,15 @@
-{% extends 'payments/base.html' %}
-
+{% extends "payments/base.html" %}  <!-- добавляем payments/ -->
+{% block title %}Вход{% endblock %}
 {% block content %}
-<h2>Вход</h2>
-<form method="post" class="mb-3">
-  {% csrf_token %}
-  <div class="mb-3">
-    <label for="id_username" class="form-label">Имя пользователя:</label>
-    <input type="text" id="id_username" name="username" class="form-control" required>
-  </div>
-  <div class="mb-3">
-    <label for="id_password" class="form-label">Пароль:</label>
-    <input type="password" id="id_password" name="password" class="form-control" required>
-  </div>
-  <button type="submit" class="btn btn-primary">Войти</button>
-</form>
+<div class="container mt-5" style="max-width: 400px;">
+    <h2 class="mb-4 text-center">Вход в систему</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary w-100">Войти</button>
+    </form>
+    <p class="mt-3 text-center">
+        Нет аккаунта? Обратитесь к администратору.
+    </p>
+</div>
 {% endblock %}

@@ -39,7 +39,7 @@ ROOT_URLCONF = 'course_payments.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],  # сюда можно добавить общие папки шаблонов
+        'DIRS': [BASE_DIR / "templates"],  # сюда можно добавить общие папки шаблонов
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -51,7 +51,12 @@ TEMPLATES = [
         },
     },
 ]
+# Используем кастомного пользователя
+AUTH_USER_MODEL = "payments.CustomUser"
 
+# Редиректы после входа/выхода
+LOGIN_REDIRECT_URL = "index"
+LOGOUT_REDIRECT_URL = "login"
 WSGI_APPLICATION = 'course_payments.wsgi.application'
 
 # База данных (sqlite, для простоты)
@@ -102,3 +107,5 @@ LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 # По умолчанию тип авто поля
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LOGIN_URL = '/accounts/login/'
+#LOGOUT_REDIRECT_URL = '/accounts/logged_out/'

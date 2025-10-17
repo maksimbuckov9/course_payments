@@ -1,0 +1,30 @@
+{% extends "payments/base.html" %}
+
+{% block content %}
+<h2>{% if user %}Редактирование{% else %}Добавление{% endif %} пользователя</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    {% if user %}
+        <label for="username">Имя пользователя:</label>
+        <input type="text" name="username" value="{{ user.username }}" required><br>		
+        <label for="role">Роль:</label>
+        <select name="role">
+            <option value="student" {% if user.role == "student" %}selected{% endif %}>Студент</option>
+            <option value="manager" {% if user.role == "manager" %}selected{% endif %}>Менеджер</option>
+            <option value="admin" {% if user.role == "admin" %}selected{% endif %}>Администратор</option>
+        </select><br>
+        <button type="submit">💾 Сохранить</button>
+    {% else %}
+        {{ form.as_p }}
+        <label for="role">Роль:</label>
+        <select name="role">
+            <option value="student">Студент</option>
+            <option value="manager">Менеджер</option>
+            <option value="admin">Администратор</option>
+        </select><br>
+        <button type="submit">Создать</button>
+    {% endif %}
+</form>
+{% endblock %}

@@ -1,73 +1,92 @@
+#!/usr/bin/python3
+
+import django
 import random
-from datetime import datetime, timedelta
-from django.contrib.auth.models import User
-from payments.models import Course, Student, Payment  # Замените payments на имя вашего приложения
+import os
 
-# Данные для заполнения
-course_names = [
-    "Программирование на Python", "Веб-разработка", "Анализ данных", "Машинное обучение",
-    "Дизайн интерфейсов", "Управление проектами", "Основы бухгалтерии", "Маркетинг",
-    "Английский язык", "Фотография", "Музыка", "Иностранные языки",
-    "Йога и фитнес", "Психология", "Кулинария", "Технический английский",
-    "3D-моделирование", "Финансы", "Логистика", "Электроника"
-]
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'course_payments.settings')
+django.setup()
 
-teacher_names = [
-    "Иван Иванов", "Петр Петров", "Сергей Сергеев", "Анна Смирнова",
-    "Ольга Кузнецова", "Дмитрий Васильев", "Мария Попова", "Елена Соколова",
-    "Алексей Морозов", "Наталья Ковалёва"
-]
+from django.db.models import Count
+from payments.models import CustomUser, Student
 
-student_names = [
+# -----------------------------
+# 1. Исправляем дубли username
+# -----------------------------
+duplicates = CustomUser.objects.values('username')\
+    .annotate(count=Count('username'))\
+    .filter(count__gt=1)
+
+for dup in duplicates:
+    users = list(CustomUser.objects.filter(username=dup['username']))
+    # оставляем первого пользователя, остальных исправляем
+    for user in users[1:]:
+        new_username = f"{user.username}_{random.randint(1000, 9999)}"
+        print(f"Изменяем {user.username} -> {new_username}")
+        user.username = new_username
+        user.save()
+
+print("Дубли username исправлены.")
+
+# -----------------------------
+# 2. Очистка таблицы Student
+# -----------------------------
+Student.objects.all().delete()
+print("Таблица Student очищена.")
+
+# -----------------------------
+# 3. Данные для генерации
+# -----------------------------
+first_names = [
     "Алексей", "Мария", "Иван", "Ольга", "Дмитрий", "Елена", "Сергей", "Наталья",
     "Павел", "Татьяна", "Виктор", "Анна", "Кирилл", "Ирина", "Максим", "Юлия",
     "Роман", "Светлана", "Евгений", "Людмила"
 ]
 
-statuses = ['paid', 'pending']
+last_names = [
+    "Иванов", "Петров", "Сидоров", "Смирнова", "Кузнецова", "Васильев", "Попова",
+    "Соколова", "Морозов", "Ковалёв", "Новиков", "Фёдоров", "Михайлова",
+    "Александров", "Григорьев", "Тарасов", "Воронова", "Зайцев", "Орлов", "Кириллов"
+]
 
-# Создаем 20 курсов
-courses = []
-for i in range(20):
-    start_date = datetime.now().date() + timedelta(days=random.randint(1, 30))
-    end_date = start_date + timedelta(days=random.randint(30, 90))
-    course = Course.objects.create(
-        name=course_names[i],
-        description=f"Описание курса '{course_names[i]}'",
-        teacher=random.choice(teacher_names),
-        price=random.choice([10000.00, 15000.00, 20000.00]),
-        start_date=start_date,
-        end_date=end_date
-    )
-    courses.append(course)
+used_passports = set()
+used_phones = set()
 
-# Создаем 20 пользователей и студентов
-students = []
-for i in range(20):
-    username = f'user{i+1}'
-    user = User.objects.create_user(
-        username=username,
-        password='password123',
-        first_name=student_names[i],
-        last_name=f"Фамилия{i+1}"
-    )
-    student = Student.objects.create(
+# -----------------------------
+# 4. Создаём студентов
+# -----------------------------
+student_users = CustomUser.objects.filter(role='student')
+created_count = 0
+
+for user in student_users:
+    if hasattr(user, 'student'):
+        continue  # студент уже есть, пропускаем
+
+    first_name = user.first_name or random.choice(first_names)
+    last_name = user.last_name or random.choice(last_names)
+    full_name = f"{first_name} {last_name}"
+
+    # Генерируем уникальный паспорт
+    while True:
+        passport = f"1234 {random.randint(100000, 999999)}"
+        if passport not in used_passports:
+            used_passports.add(passport)
+            break
+
+    # Генерируем уникальный телефон
+    while True:
+        phone = f"+7{random.randint(9000000000, 9999999999)}"
+        if phone not in used_phones:
+            used_phones.add(phone)
+            break
+    user.save()
+
+    Student.objects.create(
         user=user,
-        passport=f"1234 {random.randint(100000, 999999)}",
-        phone=f"+7{random.randint(9000000000, 9999999999)}",
-        name=f"{student_names[i]} Фамилия{i+1}"
+        name=full_name,
+        passport=passport,
+        phone=phone
     )
-    students.append(student)
+    created_count += 1
 
-# Создаем 20 оплат
-for i in range(20):
-    student = random.choice(students)
-    course = random.choice(courses)
-    Payment.objects.create(
-        student=student,
-        course=course,
-        amount=course.price,
-        status=random.choice(statuses)
-    )
-
-print("База успешно наполнена!")
+print(f"{created_count} студентов успешно созданы!")

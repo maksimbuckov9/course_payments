@@ -1,54 +1,73 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>{% block title %}Course Payments{% endblock %}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <title>{% block title %}Учебная платформа{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-    <div class="container">
-      <a class="navbar-brand" href="{% url 'dashboard' %}">Система учёта</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarNav">
-        {% if user.is_authenticated %}
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'course_list' %}">Курсы</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'student_list' %}">Слушатели</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'payment_list' %}">Оплаты</a>
-          </li>
-        </ul>
-        <div class="d-flex align-items-center">
-          <span class="text-white me-3">Привет, {{ user.get_full_name|default:user.username }}</span>
-          <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-light btn-sm">Выйти</button>
-          </form>
-        </div>
-        {% else %}
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm">Войти</a>
-          </li>
-        </ul>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        {% if user.is_authenticated and user.role != "student" %}
+            <a class="navbar-brand" href="{% url 'index' %}">Платформа</a>
+        {% elif user.is_authenticated and user.role == "student" %}
+            <span class="navbar-brand">Мои курсы</span>
         {% endif %}
-      </div>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <!-- Все пользователи видят курсы и оплаты -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'course_list' %}">Курсы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'payment_list' %}">Оплаты</a>
+                </li>
+
+                <!-- Менеджер и админ видят слушателей -->
+                {% if user.is_authenticated and user.role in "manager admin" %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'student_list' %}">Слушатели</a>
+                </li>
+                {% endif %}
+
+                <!-- Только админ видит пользователей -->
+                {% if user.is_authenticated and user.role == "admin" %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user_list' %}">Пользователи</a>
+                </li>
+                {% endif %}
+            </ul>
+
+            <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <span class="navbar-text me-3">👤 {{ user.username }} ({{ user.role }})</span>
+                </li>
+                <li class="nav-item">
+                    <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-light btn-sm">Выйти</button>
+                    </form>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="btn btn-outline-light btn-sm" href="{% url 'login' %}">Войти</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
     </div>
-  </nav>
+</nav>
 
-  <div class="container">
+<div class="container mt-4">
     {% block content %}{% endblock %}
-  </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
